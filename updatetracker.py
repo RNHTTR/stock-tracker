@@ -3,8 +3,7 @@ Update Google Sheet stock tracker
 
 TODO
     Add percentage gain column. pain in the ass because of indirect formulas.
-    This file should not know what TimeSeries is. Refactor to handle that in stock.py
-    Handle throttling. Free API only allows 5 requests per miniute.
+    Handle throttling for updating stocks. Free API only allows 5 requests per miniute.
 '''
 import argparse
 from datetime import datetime
@@ -28,8 +27,12 @@ def append_entry(ticker: str, n_shares: int, sheet_id: str, range_name: str, she
     '''
     # Get stock data
     time_series = TimeSeries(key='6XWA6AS0IP6ABGYC', output_format='pandas')
-    intraday = get_stock_data(time_series=time_series, period='intraday', ticker=ticker)
-    daily = get_stock_data(time_series=time_series, period='daily', ticker=ticker)
+    try:
+        intraday = get_stock_data(period='intraday', ticker=ticker)
+        daily = get_stock_data(period='daily', ticker=ticker)
+    except KeyError:
+        print("Throttling error")
+        quit()
     
     date_format_str_calculate = '%Y-%m-%d'
     date_format_str_sheet = "%m/%d/%Y"
@@ -47,15 +50,17 @@ def append_entry(ticker: str, n_shares: int, sheet_id: str, range_name: str, she
         '% Dip': percent_dip,
         'Purchase Price': purchase_price,
         '# Shares': n_shares,
+        'Investment': '=INDIRECT("C"&ROW())*INDIRECT("D"&ROW())',
         'Current Price': purchase_price,
         'Sell Price': "n/a",
         'Commission': 4.95, # XXX Should this be hard coded?
-        'Fees': "",
-        'Net Gain': '=if(isnumber(indirect("f"&row())),indirect("f"&row())*indirect("d"&row()) - indirect("c"&row())*indirect("d"&row()) - 2*indirect("g"&row()), indirect("e"&row())*indirect("d"&row()) - indirect("c"&row())*indirect("d"&row()) - 2*indirect("g"&row()))', # NOTE: =IF(ISNUMBER(F6), F6*D6 - C6*D6 - 2*G6, E6*D6 - C6*D6 - 2*G6)
+        'Fees': "n/a",
+        'Net Gain': '=if(isnumber(indirect("g"&row())),indirect("g"&row())*indirect("d"&row()) - indirect("c"&row())*indirect("d"&row()) - 2*indirect("h"&row()), indirect("f"&row())*indirect("d"&row()) - indirect("c"&row())*indirect("d"&row()) - 2*indirect("h"&row()))', # NOTE: =IF(ISNUMBER(F6), F6*D6 - C6*D6 - 2*G6, E6*D6 - C6*D6 - 2*G6)
+        '% Gain': '=indirect("J"&row())/indirect("E"&row())',
         'Purchase Date': purchase_date.strftime(date_format_str_sheet),
         'Sell Date': 'n/a',
-        'Workdays Elapsed': '=if(isdate(INDIRECT("K"&ROW())),NETWORKDAYS(INDIRECT("J"&ROW()),INDIRECT("K"&ROW())), networkdays(INDIRECT("J"&ROW()),today()))', # XXX How to get row number?
-        'Total Days Elapsed': '=if(isdate(INDIRECT("K"&ROW())),INDIRECT("K"&ROW())-INDIRECT("J"&ROW()), today()-INDIRECT("J"&ROW()))', # XXX How to get row number?
+        'Workdays Elapsed': '=if(isdate(INDIRECT("M"&ROW())),NETWORKDAYS(INDIRECT("L"&ROW()),INDIRECT("M"&ROW())), networkdays(INDIRECT("L"&ROW()),today()))',
+        'Total Days Elapsed': '=if(isdate(INDIRECT("M"&ROW())),INDIRECT("M"&ROW())-INDIRECT("L"&ROW()), today()-INDIRECT("L"&ROW()))',
     }
 
     # Connect to the Google Gheet
@@ -90,11 +95,10 @@ def update_table_with_current_stock_prices(sheets, sheet_id):
     write_range_name = 'Sheet1!E2:E'
     ticker_price_map = {}
     tickers = get_range(spreadsheets=sheets, sheet_id=sheet_id, range_name=read_range_name)
-    time_series = TimeSeries(key='6XWA6AS0IP6ABGYC', output_format='pandas')
     failed = []
     for ticker in tickers['values']:
         try:
-            data = get_stock_data(time_series=time_series, period='intraday', ticker=ticker)
+            data = get_stock_data(period='intraday', ticker=ticker)
             ticker_price_map[ticker[0]] = get_current_stock_price(data=data)
         except KeyError:
             failed.append(ticker[0])
