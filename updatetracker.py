@@ -64,7 +64,6 @@ def append_entry(ticker: str, n_shares: int, sheet_id: str, range_name: str, she
     }
 
     # Connect to the Google Gheet
-    # sheets = get_spreadsheets(credentials)
     sheet_values = get_spreadsheet_values(sheets)
     value_input_option = 'USER_ENTERED'
     insert_data_option = 'INSERT_ROWS'
@@ -124,30 +123,29 @@ def update_table_with_current_stock_prices(sheets, sheet_id):
 
 
 def main(args):
-    sid = '1jk_6MgIPxM0ijm3heWL3AqoJiPXdySJhbRnH7AVhH-U'
-    range_name = 'Sheet1!A:M' # XXX For buy only...
-    creds = authenticate()
-    sheets = get_spreadsheets(creds)
+    SID = '1jk_6MgIPxM0ijm3heWL3AqoJiPXdySJhbRnH7AVhH-U'
+    RANGE_NAME = 'Sheet1!A:M' # XXX For buy only...
+    CREDS = authenticate()
+    SHEETS = get_spreadsheets(CREDS)
 
     if args.action == 'buy':
         assert args.ticker, "A ticker must be passed if the selected action is 'buy'"
         assert args.n_shares, "n_shares must be passed if the selected action is 'buy'"
         args.ticker = args.ticker.upper()
         if args.purchase_date:
-            date = datetime.strptime(args.purchase_date, '%Y-%m-%d')
+            DATE = datetime.strptime(args.purchase_date, '%Y-%m-%d')
         else:
-            date = None
+            DATE = None
         append_entry(
             ticker=args.ticker,
             n_shares=args.n_shares,
-            sheet_id=sid,
-            range_name=range_name,
-            # credentials=creds,
-            sheets=sheets,
-            purchase_date=date
+            sheet_id=SID,
+            range_name=RANGE_NAME,
+            sheets=SHEETS,
+            purchase_date=DATE
         )
     elif args.action == 'update':
-        update_table_with_current_stock_prices(sheets=sheets, sheet_id=sid)
+        update_table_with_current_stock_prices(sheets=SHEETS, sheet_id=SID)
 
 
 if __name__ == '__main__':

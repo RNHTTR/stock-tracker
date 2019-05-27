@@ -47,4 +47,4 @@ def buy_the_fuckin_dip(data: object, date: str):
     Find how much the stock decreased from period t-1 to period t
     '''
     index = data.index.get_loc(date)
-    return 100 * (data.iloc[index-1]['4. close'] / data.iloc[index]['4. close'] - 1) # Stock price day before purchase divided by price day of purchase
+    return (data.iloc[index-1]['4. close'] / data.iloc[index]['4. close'] - 1) # Stock price day before purchase divided by price day of purchase
