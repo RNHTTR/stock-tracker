@@ -157,6 +157,6 @@ if __name__ == '__main__':
     parser.add_argument('--n_shares', action='store', type=int,
                         help="Enter the number of shares purchased")
     parser.add_argument('--purchase_date', action='store',
-                        help="Enter the purchase date in the form YYYY-mm-dd") # XXX hould we include an atexit to print that the stock price must be updated manually?
+                        help="Enter the purchase date in the form YYYY-mm-dd") # XXX should we include an atexit to print that the stock price must be updated manually?
     args = parser.parse_args()
     main(args)
