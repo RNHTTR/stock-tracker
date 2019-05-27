@@ -42,7 +42,7 @@ def append_entry(ticker: str, n_shares: int, sheet_id: str, range_name: str, she
     else:
         print('\nStock price must be updated manually!!\n')
     purchase_price = get_current_stock_price(data=intraday)
-    percent_dip = buy_the_fuckin_dip(data=daily, date=purchase_date.strftime(date_format_str_calculate))
+    percent_dip = btfd(data=daily, date=purchase_date.strftime(date_format_str_calculate))
 
     # Dict to track how data is organized in the Google Sheet
     values_dict = {

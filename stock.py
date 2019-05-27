@@ -4,9 +4,6 @@ Various functions to utilize Alpha Vantage API stock data
 TODO: Refactor to instantiate time_series objects in this file
 NOTE: Throttling occurs sometimes when calling alpha vantage api
 '''
-# from datetime import datetime
-
-# import pandas as pd
 from alpha_vantage.timeseries import TimeSeries
 
 
@@ -42,7 +39,7 @@ def get_current_stock_price(data: object):
     return data.tail(1)['4. close'][0]
 
 
-def buy_the_fuckin_dip(data: object, date: str):
+def btfd(data: object, date: str):
     '''
     Find how much the stock decreased from period t-1 to period t
     '''
