@@ -44,4 +44,6 @@ def btfd(data: object, date: str):
     Find how much the stock decreased from period t-1 to period t
     '''
     index = data.index.get_loc(date)
-    return (data.iloc[index-1]['4. close'] / data.iloc[index]['4. close'] - 1) # Stock price day before purchase divided by price day of purchase
+    # Stock price day before purchase divided by price day of purchase
+    return (data.iloc[index-1]['4. close'] / data.iloc[index]['4. close'] - 1)
+
